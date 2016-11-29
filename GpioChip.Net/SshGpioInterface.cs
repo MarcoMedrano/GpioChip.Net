@@ -10,7 +10,7 @@ namespace GpioChip.Net
     public class SshGpioInterface : IGpioInterface
     {
         private readonly SshClient client;
-        private const int Pin0Index = 408;
+        private readonly ushort Pin0Index;
 
         private readonly Dictionary<short, PinSubscription> pinesSubscribed;
 
@@ -20,7 +20,18 @@ namespace GpioChip.Net
             this.client = new SshClient(host, username, password);
             this.client.Connect();
 
+            this.Pin0Index = this.GetPinBase();
             new Thread(this.CheckValueChanged).Start();
+        }
+
+        private ushort GetPinBase()
+        {
+            var command =  this.client.RunCommand("cat $(dirname $(grep -l pcf8574a /sys/class/gpio/*/*label))/base");
+
+            ushort pinbase;
+            UInt16.TryParse(command.Result, out pinbase);
+
+            return pinbase;
         }
 
         public void Init(short pin)

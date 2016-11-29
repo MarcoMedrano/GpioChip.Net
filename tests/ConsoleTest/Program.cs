@@ -10,8 +10,8 @@ namespace GpioChip.Net.tests.ConsoleTest
         public static void Main(string[] args)
         {
             Console.WriteLine("Running GPIO");
-            TestInput();
-            //TestOutput();
+            TestOutput();
+            //TestInput();
             Console.WriteLine("Finished");
             Console.ReadKey();
         }
