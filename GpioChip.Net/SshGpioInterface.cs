@@ -12,7 +12,7 @@ namespace GpioChip.Net
         private readonly SshClient client;
         private const int Pin0Index = 408;
 
-        private Dictionary<short, PinSubscription> pinesSubscribed;
+        private readonly Dictionary<short, PinSubscription> pinesSubscribed;
 
         public SshGpioInterface(string host, string username = "root", string password = "chip")
         {
@@ -53,35 +53,44 @@ namespace GpioChip.Net
 
         public void SubscribeToValueChanged(short pinNumber, Action<short> valueChangedCallback)
         {
-            if (this.pinesSubscribed.ContainsKey(pinNumber) == false)
+            lock (this.pinesSubscribed)
             {
-                this.pinesSubscribed.Add(pinNumber, new PinSubscription(this.GetValue(pinNumber)));
-            }
+                if (this.pinesSubscribed.ContainsKey(pinNumber) == false)
+                {
+                    this.pinesSubscribed.Add(pinNumber, new PinSubscription(this.GetValue(pinNumber)));
+                }
 
-            this.pinesSubscribed[pinNumber].OnValueChanged += valueChangedCallback;
+                this.pinesSubscribed[pinNumber].OnValueChanged += valueChangedCallback; 
+            }
         }
 
         public void UnsubscribeToValueChanged(short pinNumber, Action<short> valueChangedCallback)
         {
-            if (this.pinesSubscribed.ContainsKey(pinNumber))
+            lock (this.pinesSubscribed)
             {
-                this.pinesSubscribed[pinNumber].OnValueChanged -= valueChangedCallback;
+                if (this.pinesSubscribed.ContainsKey(pinNumber))
+                {
+                    this.pinesSubscribed[pinNumber].OnValueChanged -= valueChangedCallback;
+                } 
             }
-
         }
 
         private void CheckValueChanged()
         {
             while (true)
             {
-                foreach (KeyValuePair<short, PinSubscription> keyValue in this.pinesSubscribed)
+                lock (this.pinesSubscribed)
                 {
-                    var newValue = this.GetValue(keyValue.Key);
-
-                    if (newValue != keyValue.Value.LastValue)
+                    foreach (KeyValuePair<short, PinSubscription> keyValue in this.pinesSubscribed)
                     {
-                        keyValue.Value.RaiseEvent(newValue);
-                    }
+                        var newValue = this.GetValue(keyValue.Key);
+
+                        if (newValue != keyValue.Value.LastValue)
+                        {
+                            keyValue.Value.LastValue = newValue;
+                            keyValue.Value.RaiseEvent(newValue);
+                        }
+                    } 
                 }
             }
         }
