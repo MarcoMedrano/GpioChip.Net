@@ -2,7 +2,7 @@
 {
     public class OutputPin : Pin
     {
-        public OutputPin(short pinNumber, IGpioInterface gpioInterface): base(pinNumber, gpioInterface)
+        public OutputPin(short pinNumber, IGpioInterface gpioInterface, PinBase pinBase): base(pinNumber, gpioInterface, pinBase)
         {
             this.Direction = Direction.Out;
         }

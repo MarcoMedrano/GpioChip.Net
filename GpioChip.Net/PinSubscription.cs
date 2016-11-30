@@ -9,9 +9,11 @@ namespace GpioChip.Net
             this.LastValue = lastValue;
         }
 
+        public event Action<short> OnValueChanged;
+
         public short LastValue { get; set; }
 
-        public event Action<short> OnValueChanged;
+        public bool AreEventsSubscribed => this.OnValueChanged != null;
 
         public void RaiseEvent(short newValue)
         {

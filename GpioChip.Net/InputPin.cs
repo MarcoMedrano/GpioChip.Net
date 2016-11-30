@@ -6,7 +6,7 @@ namespace GpioChip.Net
     {
         private event Action<short> onValueChanged;
 
-        public InputPin(short pinNumber, IGpioInterface gpioInterface) : base(pinNumber, gpioInterface)
+        public InputPin(short pinNumber, IGpioInterface gpioInterface, PinBase pinBase) : base(pinNumber, gpioInterface, pinBase)
         {
             this.Direction = Direction.In;
             this.gpioInterface.SubscribeToValueChanged(this.PinNumber, this.ValueChanged);

@@ -19,5 +19,7 @@
         void UnsubscribeToValueChanged(short pinNumber, Action<short> valueChanged);
 
         void Dispose(short pinNumber);
+
+        PinBase GetDefaultPinBase();
     }
 }

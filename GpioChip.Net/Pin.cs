@@ -6,26 +6,29 @@
     {
         protected readonly IGpioInterface gpioInterface;
 
-        public Pin(short pinNumber, IGpioInterface gpioInterface)
+        public Pin(short pinNumber, IGpioInterface gpioInterface, PinBase pinBase)
         {
             this.PinNumber = pinNumber;
+            this.RawPinNumber = (short)(pinBase + pinNumber);
             this.gpioInterface = gpioInterface;
-            this.gpioInterface.Init(this.PinNumber);
+            this.gpioInterface.Init(this.RawPinNumber);
         }
 
-        public short PinNumber { get; protected set; }
+        public short PinNumber { get; private set; }
+
+        public short RawPinNumber { get; private set; }
 
         public short Value
         {
             get
             {
-                return this.gpioInterface.GetValue(this.PinNumber);
+                return this.gpioInterface.GetValue(this.RawPinNumber);
             }
             set
             {
                 if(this.Direction == Direction.In)
                     throw new InvalidOperationException($"Can not set : {value} to pin {this.PinNumber} as direction is input.");
-                this.gpioInterface.SetValue(this.PinNumber, value);
+                this.gpioInterface.SetValue(this.RawPinNumber, value);
             }
         }
 
@@ -33,17 +36,17 @@
         {
             get
             {
-                return this.gpioInterface.GetDirection(this.PinNumber);
+                return this.gpioInterface.GetDirection(this.RawPinNumber);
             }
             set
             {
-                this.gpioInterface.SetDirection(this.PinNumber, value);
+                this.gpioInterface.SetDirection(this.RawPinNumber, value);
             }
         }
 
         public void Dispose()
         {
-            this.gpioInterface.Dispose(this.PinNumber);
+            this.gpioInterface.Dispose(this.RawPinNumber);
         }
     }
 }
