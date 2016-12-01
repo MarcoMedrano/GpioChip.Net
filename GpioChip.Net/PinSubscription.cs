@@ -19,5 +19,10 @@ namespace GpioChip.Net
         {
             this.OnValueChanged?.Invoke(newValue);
         }
+
+        public void RemoveEventsSubscribed()
+        {
+            this.OnValueChanged = null;
+        }
     }
 }

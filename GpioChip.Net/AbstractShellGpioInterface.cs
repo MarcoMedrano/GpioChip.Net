@@ -2,14 +2,19 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
 
     public abstract class AbstractShellGpioInterface : IGpioInterface
     {
         protected readonly Dictionary<short, PinSubscription> pinesSubscribed;
+        private Thread threadToCheckEvents = null;
 
-        public AbstractShellGpioInterface()
+        protected AbstractShellGpioInterface()
         {
             this.pinesSubscribed = new Dictionary<short, PinSubscription>();
+
+            this.threadToCheckEvents = new Thread(this.CheckValueChanged);
+            this.threadToCheckEvents.Start();
         }
 
         protected abstract AbstractShellCommandResult RunCommand(string command);
@@ -78,6 +83,28 @@
             }
         }
 
+        private void CheckValueChanged()
+        {
+            while (true)
+            {
+                lock (this.pinesSubscribed)
+                {
+                    foreach (KeyValuePair<short, PinSubscription> keyValue in this.pinesSubscribed)
+                    {
+                        if (this.pinesSubscribed[keyValue.Key].AreEventsSubscribed == false) continue;
+
+                        var newValue = this.GetValue(keyValue.Key);
+
+                        if (newValue != keyValue.Value.LastValue)
+                        {
+                            keyValue.Value.LastValue = newValue;
+                            keyValue.Value.RaiseEvent(newValue);
+                        }
+                    }
+                }
+            }
+        }
+
         public void Dispose(short pin)
         {
             this.RunCommand($"echo {pin} > /sys/class/gpio/unexport");
@@ -85,10 +112,12 @@
 
         public void Dispose()
         {
+            
             lock (this.pinesSubscribed)
             {
                 foreach (KeyValuePair<short, PinSubscription> keyValue in this.pinesSubscribed)
                 {
+                    keyValue.Value.RemoveEventsSubscribed();
                     this.Dispose(keyValue.Key);
                 }
             }
