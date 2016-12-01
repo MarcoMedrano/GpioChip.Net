@@ -1,6 +1,8 @@
 ﻿namespace GpioChip.Net
 {
+    using System;
     using System.Diagnostics;
+    using System.IO;
 
     public class ShellGpioInterface : AbstractShellGpioInterface
     {
@@ -25,6 +27,37 @@
             }
 
             return new AbstractShellCommandResult { Result = res, ExitCode = p.ExitCode };
+        }
+
+        public override void Init(short pin)
+        {
+            base.Init(pin);
+            Console.WriteLine("Initializing pin " + pin);
+            var watcher = new FileSystemWatcher($"/sys/class/gpio/gpio{pin}", "value");
+            //watcher.NotifyFilter = NotifyFilters.Size;
+
+            watcher.Error += this.OnError;
+            watcher.Changed += (s, e) => { Console.WriteLine("Changed " + pin); this.OnChanged(pin, s, e); };
+            watcher.EnableRaisingEvents = true;
+        }
+
+        private void OnChanged(short pin, object sender, FileSystemEventArgs e)
+        {
+            if(e.ChangeType != WatcherChangeTypes.Changed) return;
+            if (this.pinesSubscribed[pin].AreEventsSubscribed == false) return;
+
+            var newValue = this.GetValue(pin);
+
+            if (newValue != this.pinesSubscribed[pin].LastValue)
+            {
+                this.pinesSubscribed[pin].LastValue = newValue;
+                this.pinesSubscribed[pin].RaiseEvent(newValue);
+            }
+        }
+
+        private void OnError(object sender, ErrorEventArgs e)
+        {
+            Console.WriteLine(e.GetException());
         }
 
         public new void Dispose()

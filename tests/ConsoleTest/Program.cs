@@ -11,8 +11,8 @@ namespace GpioChip.Net.tests.ConsoleTest
         {
             var stopWatch = Stopwatch.StartNew();
             Console.WriteLine("Running GPIO");
-            TestOutput();
-            //TestInput();
+            //TestOutput();
+            TestInput();
             Console.WriteLine($"Finished with: {stopWatch.Elapsed.TotalSeconds} seconds");
             Console.ReadKey();
         }
@@ -33,18 +33,15 @@ namespace GpioChip.Net.tests.ConsoleTest
                 //var lcd4Pin = gpio.NewOutputPin(2, PinBase.LCD_D2);
                 //lcd4Pin.On();
                 //lcd4Pin.Off();
-
-                var lcd4Pin = gpio.NewOutputPin(3, PinBase.CSIPCK);
-                lcd4Pin.On();
-                lcd4Pin.Off();
             }
         }
 
         private static void TestInput()
         {
-            using (var gpio = new Gpio(new SshGpioInterface("192.168.0.109")))
+            using (var gpio = new Gpio(new ShellGpioInterface()))
+            //using (var gpio = new Gpio(new SshGpioInterface("192.168.0.109")))
             {
-                Console.WriteLine("Connected");
+                Console.WriteLine("Connected Locally");
                 for (short i = 0; i < 8; i++)
                 {
                     var pin = gpio.NewInputPin(i);
@@ -52,10 +49,7 @@ namespace GpioChip.Net.tests.ConsoleTest
                     pin.OnValueChanged += x => Console.WriteLine($"Pin {i1}: Changed to " + x);
                 }
 
-                while (true)
-                {
-                    Thread.Sleep(1000);
-                }
+                Console.ReadKey();
             }
         }
     }

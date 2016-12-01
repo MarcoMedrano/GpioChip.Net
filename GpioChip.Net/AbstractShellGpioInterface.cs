@@ -1,21 +1,15 @@
-﻿using System;
-
-namespace GpioChip.Net
+﻿namespace GpioChip.Net
 {
+    using System;
     using System.Collections.Generic;
-    using System.Threading;
-
-    using Renci.SshNet;
 
     public abstract class AbstractShellGpioInterface : IGpioInterface
     {
-        private readonly Dictionary<short, PinSubscription> pinesSubscribed;
+        protected readonly Dictionary<short, PinSubscription> pinesSubscribed;
 
         public AbstractShellGpioInterface()
         {
             this.pinesSubscribed = new Dictionary<short, PinSubscription>();
-
-            new Thread(this.CheckValueChanged).Start();
         }
 
         protected abstract AbstractShellCommandResult RunCommand(string command);
@@ -30,7 +24,7 @@ namespace GpioChip.Net
             return (PinBase)pinbase;
         }
 
-        public void Init(short pin)
+        public virtual void Init(short pin)
         {
             this.RunCommand($"echo {pin} > /sys/class/gpio/export");
 
@@ -81,28 +75,6 @@ namespace GpioChip.Net
                 {
                     this.pinesSubscribed[pin].OnValueChanged -= valueChangedCallback;
                 } 
-            }
-        }
-
-        private void CheckValueChanged()
-        {
-            while (true)
-            {
-                lock (this.pinesSubscribed)
-                {
-                    foreach (KeyValuePair<short, PinSubscription> keyValue in this.pinesSubscribed)
-                    {
-                        if (this.pinesSubscribed[keyValue.Key].AreEventsSubscribed == false ) continue;
-
-                        var newValue = this.GetValue(keyValue.Key);
-
-                        if (newValue != keyValue.Value.LastValue)
-                        {
-                            keyValue.Value.LastValue = newValue;
-                            keyValue.Value.RaiseEvent(newValue);
-                        }
-                    } 
-                }
             }
         }
 

@@ -9,7 +9,7 @@ namespace GpioChip.Net
         public InputPin(short pinNumber, IGpioInterface gpioInterface, PinBase pinBase) : base(pinNumber, gpioInterface, pinBase)
         {
             this.Direction = Direction.In;
-            this.gpioInterface.SubscribeToValueChanged(this.PinNumber, this.ValueChanged);
+            this.gpioInterface.SubscribeToValueChanged(this.RawPinNumber, this.ValueChanged);
         }
 
 
