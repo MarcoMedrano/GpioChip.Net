@@ -85,7 +85,7 @@
 
         private void CheckValueChanged()
         {
-            while (true)
+            while (this.threadToCheckEvents != null)
             {
                 lock (this.pinesSubscribed)
                 {
@@ -112,7 +112,7 @@
 
         public void Dispose()
         {
-            
+            this.threadToCheckEvents = null;
             lock (this.pinesSubscribed)
             {
                 foreach (KeyValuePair<short, PinSubscription> keyValue in this.pinesSubscribed)
