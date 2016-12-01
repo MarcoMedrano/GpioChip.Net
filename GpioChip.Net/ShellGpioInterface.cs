@@ -4,11 +4,10 @@
 
     public class ShellGpioInterface : AbstractShellGpioInterface
     {
-        private readonly string username;
-
+        // This parameters are not used but MONO 3.5 is complaining about this class does not have a constructor :S
+        //Missing method GpioChip.Net.ShellGpioInterface::.ctor()
         public ShellGpioInterface(string username = "root", string password = "chip") : base()
         {
-            this.username = username;
         }
 
         protected override AbstractShellCommandResult RunCommand(string command)
@@ -26,7 +25,6 @@
             }
 
             return new AbstractShellCommandResult { Result = res, ExitCode = p.ExitCode };
-            return new AbstractShellCommandResult {};
         }
 
         public new void Dispose()
