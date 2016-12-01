@@ -87,6 +87,7 @@
         {
             while (this.threadToCheckEvents != null)
             {
+                //Console.WriteLine($"Memory used {System.Diagnostics.Process.GetCurrentProcess().WorkingSet64/1024/1024} MB");
                 lock (this.pinesSubscribed)
                 {
                     foreach (KeyValuePair<short, PinSubscription> keyValue in this.pinesSubscribed)
