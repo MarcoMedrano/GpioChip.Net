@@ -32,7 +32,7 @@ namespace GpioChip.Net
 
         public void Init(short pin)
         {
-            this.RunCommand($"sh -c 'echo {pin} > /sys/class/gpio/export'");
+            this.RunCommand($"echo {pin} > /sys/class/gpio/export");
 
             lock (this.pinesSubscribed)
             {
@@ -45,7 +45,7 @@ namespace GpioChip.Net
 
         public void SetDirection(short pin, Direction direction)
         {
-            var res = this.RunCommand($"sh -c 'echo {direction.ToString().ToLower()} > /sys/class/gpio/gpio{pin}/direction'");
+            var res = this.RunCommand($"echo {direction.ToString().ToLower()} > /sys/class/gpio/gpio{pin}/direction");
             if (res.ExitCode == 1) throw new Exception($"Could not change direction of raw pin {pin} \n With internal message: {res.ErrorMessage}");
         }
 
@@ -58,7 +58,7 @@ namespace GpioChip.Net
 
         public void SetValue(short pin, short value)
         {
-            var res = this.RunCommand($"sh -c 'echo {value} > /sys/class/gpio/gpio{pin}/value'");
+            var res = this.RunCommand($"echo {value} > /sys/class/gpio/gpio{pin}/value");
             if (res.ExitCode == 1) throw new Exception($"Could not change value of raw pin {pin} \n With internal message: {res.ErrorMessage}");
         }
 
@@ -108,7 +108,7 @@ namespace GpioChip.Net
 
         public void Dispose(short pin)
         {
-            this.RunCommand($"sh -c 'echo {pin} > /sys/class/gpio/unexport'");
+            this.RunCommand($"echo {pin} > /sys/class/gpio/unexport");
         }
 
         public void Dispose()
