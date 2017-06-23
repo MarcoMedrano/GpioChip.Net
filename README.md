@@ -14,7 +14,8 @@ Thanks to SSH this is fastest way to try GPIO without make a line of code or bas
                     pin.Off();
                 }
             }
-            
+
+Be sure to put your CHIP's IP instead of *"192.168.0.109"* and this snippet is running in the same network than CHIP.            
 This version can run also inside CHIP by using mono like: `mono ConsoleTest.exe`
 
 
