@@ -11,8 +11,8 @@ namespace GpioChip.Net.tests.ConsoleTest
         {
             var stopWatch = Stopwatch.StartNew();
             Console.WriteLine("Running GPIO");
-            //TestOutput();
-            TestInput();
+            TestOutput();
+            //TestInput();
             Console.WriteLine($"Finished with: {stopWatch.Elapsed.TotalSeconds} seconds");
             Console.ReadKey();
         }
